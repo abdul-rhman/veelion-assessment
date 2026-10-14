@@ -1,17 +1,19 @@
-const aSvc = require('../services/activity.service');
+const activityService = require('../services/activity.service');
 
-function get_activity(req, res) {
-  const x = aSvc.getAllActivity();
-  res.json(x);
+async function listActivity(req, res) {
+  const activities = await activityService.getAllActivity();
+  res.status(200).json(activities);
 }
 
-function addActivity(req, res) {
+async function createActivity(req, res) {
   const bodyData = req.body || {};
-  const made = aSvc.createNewActivity(bodyData);
-  res.status(201).json(made);
+  const { validateCreateActivity } = require('../utils/activityValidator');
+  const normalized = validateCreateActivity(bodyData);
+  const activity = await activityService.createActivity(normalized);
+  res.status(201).json(activity);
 }
 
 module.exports = {
-  get_activity,
-  addActivity,
+  listActivity,
+  createActivity,
 };
