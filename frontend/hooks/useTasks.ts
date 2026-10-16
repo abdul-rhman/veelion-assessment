@@ -1,56 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getErrorMessage, requestJson } from "@/lib/apiClient";
-import type { Task, TaskFilter, TaskResponse, TasksResponse } from "@/types/api";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store";
+import type { TaskFilter } from "@/types/api";
+import { initRequests } from "@/lib/initRequests";
+import { fetchTasks, updateTaskStatus } from "@/store/tasksSlice";
 
 export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const tasks = useSelector((state: RootState) => state.tasks.items);
+  const status = useSelector((state: RootState) => state.tasks.status);
+  const error = useSelector((state: RootState) => state.tasks.error);
+  const updatingTaskId = useSelector(
+    (state: RootState) => state.tasks.updatingTaskId,
+  );
+
   const [filter, setFilter] = useState<TaskFilter>("all");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [updatingTaskId, setUpdatingTaskId] = useState<string>("");
-
-  const fetchTasks = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const body = await requestJson<TasksResponse>("/api/tasks", {
-        method: "GET",
-      });
-
-      setTasks(body.data ?? []);
-    } catch (error) {
-      setError(getErrorMessage(error, "Could not load tasks right now."));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updateTaskStatus = useCallback(async (taskId: string, completed: boolean) => {
-    try {
-      setUpdatingTaskId(taskId);
-      setError("");
-
-      const body = await requestJson<TaskResponse>(`/api/tasks/${taskId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ completed }),
-      });
-
-      setTasks((previous) =>
-        previous.map((task) => (task.id === taskId ? body.data : task))
-      );
-    } catch (error) {
-      setError(getErrorMessage(error, "Could not update task status."));
-    } finally {
-      setUpdatingTaskId("");
-    }
-  }, []);
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    initRequests();
+  }, []);
 
   const filteredTasks = useMemo(() => {
     if (filter === "completed") {
@@ -68,11 +38,12 @@ export function useTasks() {
     tasks,
     filteredTasks,
     filter,
-    loading,
+    loading: status === "idle" || status === "loading",
     error,
     updatingTaskId,
     setFilter,
-    fetchTasks,
-    updateTaskStatus,
+    fetchTasks: () => dispatch(fetchTasks()),
+    updateTaskStatus: (taskId: string, completed: boolean) =>
+      dispatch(updateTaskStatus({ taskId, completed })),
   };
 }

@@ -1,35 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getErrorMessage, requestJson } from "@/lib/apiClient";
-import type { ActivityLog } from "@/types/api";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/store";
+import { initRequests } from "@/lib/initRequests";
+import { fetchActivity } from "@/store/activitySlice";
 
 export function useActivity() {
-  const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const activity = useSelector((state: RootState) => state.activity.items);
+  const status = useSelector((state: RootState) => state.activity.status);
+  const error = useSelector((state: RootState) => state.activity.error);
+
   const [query, setQuery] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-
-  const fetchActivity = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const logs = await requestJson<ActivityLog[]>("/api/activity", {
-        method: "GET",
-      });
-
-      setActivity(logs ?? []);
-    } catch (error) {
-      setError(getErrorMessage(error, "Could not load activity right now."));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    fetchActivity();
-  }, [fetchActivity]);
+    initRequests();
+  }, []);
 
   const filteredActivity = useMemo(() => {
     const search = query.trim().toLowerCase();
@@ -41,7 +28,7 @@ export function useActivity() {
     return activity.filter(
       (item) =>
         (item.action || "").toLowerCase().includes(search) ||
-        (item.info || "").toLowerCase().includes(search)
+        (item.info || "").toLowerCase().includes(search),
     );
   }, [activity, query]);
 
@@ -49,9 +36,9 @@ export function useActivity() {
     activity,
     filteredActivity,
     query,
-    loading,
+    loading: status === "idle" || status === "loading",
     error,
     setQuery,
-    fetchActivity,
+    fetchActivity: () => dispatch(fetchActivity()),
   };
 }
