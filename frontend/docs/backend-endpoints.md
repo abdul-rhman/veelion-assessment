@@ -100,35 +100,90 @@ Possible errors:
 
 ### GET /activity
 
-Fetch activity logs.
+Fetch all activity logs in stored order.
 
 ```ts
 type ActivityLog = {
   id: string;
-  action?: string;
+  action: string;
   info?: string;
   when: string; // ISO datetime
 };
 
-type GetActivityResponse = ActivityLog[];
+type GetActivityResponse = {
+  data: ActivityLog[];
+};
 ```
+
+### GET /activity/:id
+
+Fetch one activity log by ID.
+
+```ts
+type GetActivityLogResponse = {
+  data: ActivityLog;
+};
+```
+
+Possible errors:
+- `404` when activity log does not exist.
 
 ### POST /activity
 
-Create activity log entry.
+Create an activity log entry.
 
 ```ts
 type CreateActivityRequest = {
-  action?: string;
-  info?: string;
+  action: string; // required, trimmed, non-empty
+  info?: string; // optional, trimmed, non-empty when provided
 };
 
-type CreateActivityResponse = ActivityLog;
+type CreateActivityResponse = {
+  data: ActivityLog;
+};
 ```
 
+Possible errors:
+- `400` when body is not an object.
+- `400` when action is missing/invalid/empty.
+- `400` when info is not a string or empty.
+- `400` when body contains unsupported fields.
+
+### PATCH /activity/:id
+
+Update an activity log entry.
+
+```ts
+type PatchActivityRequest = {
+  action?: string; // if provided, must be string, non-empty after trim
+  info?: string; // if provided, must be string, non-empty after trim
+};
+
+type PatchActivityResponse = {
+  data: ActivityLog;
+};
+```
+
+Possible errors:
+- `400` when body is invalid.
+- `400` when no supported fields are provided.
+- `400` when body contains unsupported fields.
+- `404` when activity log does not exist.
+
+### DELETE /activity/:id
+
+Delete an activity log by ID.
+
+```ts
+type DeleteActivityResponse = void; // status 204
+```
+
+Possible errors:
+- `404` when activity log does not exist.
+
 Notes:
-- `action` and `info` are currently not validated by backend.
-- Response shape for activity endpoints is raw objects/arrays (not wrapped in `data`).
+- Activity endpoints follow the same `{ data: ... }` envelope and error handling as the tasks endpoints.
+- `id` and `when` are server-managed and cannot be set or updated through the API.
 
 ## Reports Endpoints
 
@@ -153,3 +208,15 @@ type GetTasksSummaryResponse = TasksSummary;
 Notes:
 - `in-progress` is currently returned as `0` because task data only includes boolean `completed`.
 - Response shape is raw object.
+
+## Frontend Proxy Routes
+
+The Next.js app exposes thin proxy routes under `/api/*` so the browser never calls the backend directly:
+
+- `GET /api/tasks`, `POST /api/tasks`
+- `PATCH /api/tasks/:id`
+- `GET /api/activity`, `POST /api/activity`
+- `PATCH /api/activity/:id`
+- `GET /api/reports/tasks-summary`
+
+Requests, `{ data: ... }` envelopes, and validation errors mirror the backend routes above. Only the endpoints used by the UI are proxied (no GET-by-id or DELETE).

@@ -1,9 +1,15 @@
+import { FaChartBar } from "react-icons/fa";
 import type { TasksSummary } from "@/types/api";
+import { EmptyState } from "@/components/shared/EmptyState";
 
-const STATUSES: Array<{ key: keyof TasksSummary["byStatus"]; label: string }> = [
-  { key: "todo", label: "To do" },
-  { key: "in-progress", label: "In progress" },
-  { key: "done", label: "Done" },
+const STATUSES: Array<{
+  key: keyof TasksSummary["byStatus"];
+  label: string;
+  barClass: string;
+}> = [
+  { key: "todo", label: "To do", barClass: "bg-info" },
+  { key: "in-progress", label: "In progress", barClass: "bg-accent" },
+  { key: "done", label: "Done", barClass: "bg-primary" },
 ];
 
 type StatusBreakdownProps = {
@@ -13,35 +19,48 @@ type StatusBreakdownProps = {
 export function StatusBreakdown({ byStatus }: StatusBreakdownProps) {
   const total = STATUSES.reduce((sum, status) => sum + byStatus[status.key], 0);
 
-  return (
-    <section className="card" style={{ padding: "1rem" }}>
-      <h2 style={{ marginTop: 0, marginBottom: "0.75rem" }}>Tasks by status</h2>
+  if (total === 0) {
+    return (
+      <EmptyState
+        icon={FaChartBar}
+        title="Nothing to count yet"
+        hint="Pin a few tasks and the numbers will show up here."
+      />
+    );
+  }
 
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "0.7rem" }}>
+  return (
+    <section className="card p-6">
+      <h2 className="m-0 mb-5 font-heading text-xl font-semibold text-ink">
+        Where things stand
+      </h2>
+
+      <ul className="m-0 grid list-none gap-4 p-0">
         {STATUSES.map((status) => {
           const value = byStatus[status.key];
-          const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+          const percent = Math.round((value / total) * 100);
 
           return (
-            <li key={status.key} style={{ display: "grid", gap: "0.3rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "0.8rem" }}>
+            <li key={status.key} className="grid gap-1.5">
+              <div className="flex items-center justify-between gap-3 text-sm font-medium text-ink">
                 <span>{status.label}</span>
-                <span className="badge">{value}</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-xs text-muted-ink">{percent}%</span>
+                  <span className="badge">{value}</span>
+                </span>
               </div>
+
               <div
-                style={{
-                  background: "var(--chip)",
-                  borderRadius: 999,
-                  height: 8,
-                  overflow: "hidden",
-                }}
+                className="h-2 w-full overflow-hidden rounded-full bg-background"
+                role="progressbar"
+                aria-label={`${status.label} tasks`}
+                aria-valuenow={value}
+                aria-valuemin={0}
+                aria-valuemax={total}
               >
                 <div
-                  style={{
-                    width: `${percent}%`,
-                    height: "100%",
-                    background: "var(--primary)",
-                  }}
+                  className={`h-full rounded-full transition-[width] duration-500 ${status.barClass}`}
+                  style={{ width: `${percent}%` }}
                 />
               </div>
             </li>

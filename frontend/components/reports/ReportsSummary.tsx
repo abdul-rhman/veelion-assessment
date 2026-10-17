@@ -3,41 +3,38 @@
 import { useReports } from "@/hooks/useReports";
 import { SummaryStatCard } from "@/components/reports/SummaryStatCard";
 import { StatusBreakdown } from "@/components/reports/StatusBreakdown";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ErrorBanner } from "@/components/shared/ErrorBanner";
 
 export function ReportsSummary() {
   const { summary, loading, error, fetchSummary } = useReports();
 
   return (
     <section className="stack">
-      <header className="card" style={{ padding: "1rem" }}>
-        <h1 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Reports</h1>
-        <p style={{ margin: 0, color: "var(--muted)" }}>
-          Summary of tasks and activity.
-        </p>
-      </header>
+      <PageHeader
+        title="The Numbers"
+        subtitle="Your tasks and the last seven days, counted up."
+      />
 
       {loading ? (
-        <section className="card" style={{ padding: "1rem" }}>
-          <p style={{ margin: 0 }}>Loading report...</p>
+        <section className="card p-4" aria-busy="true">
+          <p className="m-0 animate-pulse font-hand text-xl text-muted-ink">
+            Counting things up...
+          </p>
         </section>
       ) : null}
 
-      {error ? (
-        <section className="card" style={{ padding: "1rem", borderColor: "#e3b4c0", background: "#fff8fa" }}>
-          <p style={{ marginTop: 0, marginBottom: "0.75rem", color: "var(--danger)" }}>{error}</p>
-          <button type="button" className="button" onClick={fetchSummary}>
-            Retry
-          </button>
-        </section>
-      ) : null}
+      {error ? <ErrorBanner message={error} onRetry={fetchSummary} /> : null}
 
       {!loading && !error && summary ? (
         <>
-          <section
-            className="stack"
-            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}
-          >
-            <SummaryStatCard label="Total tasks" value={summary.total} />
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <SummaryStatCard label="Tasks pinned" value={summary.total} />
+            <SummaryStatCard
+              label="Checked off"
+              value={summary.byStatus.done}
+              hint="All time"
+            />
             <SummaryStatCard
               label="Recent activity"
               value={summary.recentActivityCount}

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
 import type { TaskFilter } from "@/types/api";
 import { initRequests } from "@/lib/initRequests";
-import { fetchTasks, updateTaskStatus } from "@/store/tasksSlice";
+import { addTask, fetchTasks, updateTaskStatus, updateTaskTitle } from "@/store/tasksSlice";
 
 export function useTasks() {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,5 +45,8 @@ export function useTasks() {
     fetchTasks: () => dispatch(fetchTasks()),
     updateTaskStatus: (taskId: string, completed: boolean) =>
       dispatch(updateTaskStatus({ taskId, completed })),
+    addTask: (title: string) => dispatch(addTask(title)).unwrap(),
+    updateTaskTitle: (taskId: string, title: string) =>
+      dispatch(updateTaskTitle({ taskId, title })).unwrap(),
   };
 }

@@ -6,10 +6,12 @@ type SummaryStatCardProps = {
 
 export function SummaryStatCard({ label, value, hint }: SummaryStatCardProps) {
   return (
-    <section className="card" style={{ padding: "1rem", display: "grid", gap: "0.25rem" }}>
-      <small style={{ color: "var(--muted)" }}>{label}</small>
-      <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: 700 }}>{value}</p>
-      {hint ? <small style={{ color: "var(--muted)" }}>{hint}</small> : null}
+    <section className="card flex flex-col gap-2 p-6">
+      <small className="micro-label">{label}</small>
+      <p className="m-0 font-heading text-4xl font-semibold tracking-tight text-primary">
+        {value}
+      </p>
+      {hint ? <small className="text-xs text-muted-ink">{hint}</small> : null}
     </section>
   );
 }

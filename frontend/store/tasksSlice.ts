@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getTasks, patchTask } from "@/lib/api";
+import { createTask, getTasks, patchTask } from "@/lib/api";
 import { fetchReportsSummary } from "@/store/reportsSlice";
 import type { Task } from "@/types/api";
 
@@ -25,11 +25,29 @@ export const updateTaskStatus = createAsyncThunk<
   Task,
   { taskId: string; completed: boolean }
 >("tasks/updateStatus", async ({ taskId, completed }, { dispatch }) => {
-  const task = await patchTask(taskId, completed);
+  const task = await patchTask(taskId, { completed });
 
   dispatch(fetchReportsSummary());
 
   return task;
+});
+
+export const addTask = createAsyncThunk<Task, string>(
+  "tasks/add",
+  async (title, { dispatch }) => {
+    const task = await createTask(title);
+
+    dispatch(fetchReportsSummary());
+
+    return task;
+  },
+);
+
+export const updateTaskTitle = createAsyncThunk<
+  Task,
+  { taskId: string; title: string }
+>("tasks/updateTitle", async ({ taskId, title }) => {
+  return patchTask(taskId, { title });
 });
 
 const tasksSlice = createSlice({
@@ -63,6 +81,14 @@ const tasksSlice = createSlice({
       .addCase(updateTaskStatus.rejected, (state, action) => {
         state.updatingTaskId = "";
         state.error = action.error.message ?? "Could not update task status.";
+      })
+      .addCase(addTask.fulfilled, (state, action) => {
+        state.items = [...state.items, action.payload];
+      })
+      .addCase(updateTaskTitle.fulfilled, (state, action) => {
+        state.items = state.items.map((task) =>
+          task.id === action.payload.id ? action.payload : task,
+        );
       });
   },
 });

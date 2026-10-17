@@ -31,6 +31,14 @@ export type TaskResponse = {
   data: Task;
 };
 
+export type ActivitiesResponse = {
+  data: ActivityLog[];
+};
+
+export type ActivityResponse = {
+  data: ActivityLog;
+};
+
 export type ErrorResponse = {
   error?: {
     message?: string;
@@ -38,3 +46,18 @@ export type ErrorResponse = {
 };
 
 export type TaskFilter = "all" | "completed" | "pending";
+
+export type TaskUpdates = {
+  title?: string;
+  completed?: boolean;
+};
+
+export type ActivityInput = {
+  action: string;
+  info?: string;
+};
+
+export type ActivityUpdates = {
+  action?: string;
+  info?: string;
+};

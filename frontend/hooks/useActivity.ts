@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
+import type { ActivityInput } from "@/types/api";
 import { initRequests } from "@/lib/initRequests";
-import { fetchActivity } from "@/store/activitySlice";
+import { addActivity, fetchActivity, updateActivity } from "@/store/activitySlice";
 
 export function useActivity() {
   const dispatch = useDispatch<AppDispatch>();
@@ -40,5 +41,8 @@ export function useActivity() {
     error,
     setQuery,
     fetchActivity: () => dispatch(fetchActivity()),
+    addActivity: (input: ActivityInput) => dispatch(addActivity(input)).unwrap(),
+    updateActivity: (activityId: string, input: ActivityInput) =>
+      dispatch(updateActivity({ activityId, input })).unwrap(),
   };
 }

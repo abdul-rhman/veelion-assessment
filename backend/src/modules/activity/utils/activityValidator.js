@@ -29,12 +29,12 @@ function normalizeActionIfPresent(payload, normalized) {
     throw new HttpError(400, '"action" must be a string.');
   }
 
-  const trimmed = payload.action.trim();
-  if (!trimmed) {
+  const trimmedAction = payload.action.trim();
+  if (!trimmedAction) {
     throw new HttpError(400, '"action" cannot be empty.');
   }
 
-  normalized.action = trimmed;
+  normalized.action = trimmedAction;
 }
 
 function normalizeInfoIfPresent(payload, normalized) {
@@ -46,12 +46,12 @@ function normalizeInfoIfPresent(payload, normalized) {
     throw new HttpError(400, '"info" must be a string.');
   }
 
-  const trimmed = payload.info.trim();
-  if (!trimmed) {
+  const trimmedInfo = payload.info.trim();
+  if (!trimmedInfo) {
     throw new HttpError(400, '"info" cannot be empty.');
   }
 
-  normalized.info = trimmed;
+  normalized.info = trimmedInfo;
 }
 
 function validateCreateActivity(payload) {
@@ -62,10 +62,29 @@ function validateCreateActivity(payload) {
   normalizeActionIfPresent(payload, normalized);
   normalizeInfoIfPresent(payload, normalized);
 
-  // Both optional per API, but if provided must be valid strings
+  if (!Object.hasOwn(normalized, 'action')) {
+    throw new HttpError(400, '"action" is required.');
+  }
+
+  return normalized;
+}
+
+function validateUpdateActivity(payload) {
+  validatePayloadShape(payload);
+  ensureNoUnknownFields(payload);
+
+  const normalized = {};
+  normalizeActionIfPresent(payload, normalized);
+  normalizeInfoIfPresent(payload, normalized);
+
+  if (Object.keys(normalized).length === 0) {
+    throw new HttpError(400, 'Provide at least one updatable field.');
+  }
+
   return normalized;
 }
 
 module.exports = {
   validateCreateActivity,
+  validateUpdateActivity,
 };

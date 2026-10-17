@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { updateTaskInBackend } from "@/lib/backendApi";
+import type { TaskUpdates } from "@/types/api";
 
 type RouteParams = {
   params: {
@@ -9,16 +10,25 @@ type RouteParams = {
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
-    const payload = (await request.json()) as { completed?: boolean };
+    const payload = (await request.json()) as TaskUpdates;
+    const updates: TaskUpdates = {};
 
-    if (typeof payload.completed !== "boolean") {
+    if (typeof payload.title === "string") {
+      updates.title = payload.title;
+    }
+
+    if (typeof payload.completed === "boolean") {
+      updates.completed = payload.completed;
+    }
+
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
-        { error: { message: "completed must be boolean" } },
+        { error: { message: "Provide a title or completed value" } },
         { status: 400 }
       );
     }
 
-    const task = await updateTaskInBackend(params.id, payload.completed);
+    const task = await updateTaskInBackend(params.id, updates);
     return NextResponse.json({ data: task }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

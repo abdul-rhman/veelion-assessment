@@ -1,16 +1,29 @@
+import { FaHistory } from "react-icons/fa";
 import type { ActivityLog } from "@/types/api";
 import { ActivityItem } from "@/components/activity/ActivityItem";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 type ActivityListProps = {
   activity: ActivityLog[];
+  onEdit: (activity: ActivityLog) => void;
 };
 
-export function ActivityList({ activity }: ActivityListProps) {
+export function ActivityList({ activity, onEdit }: ActivityListProps) {
+  if (activity.length === 0) {
+    return (
+      <EmptyState
+        icon={FaHistory}
+        title="Nothing found"
+        hint="No entries match your search, try a different word."
+      />
+    );
+  }
+
   return (
-    <section className="card" style={{ padding: "1rem" }}>
-      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: "0.7rem" }}>
+    <section className="card overflow-hidden">
+      <ul className="m-0 list-none divide-y divide-line p-0">
         {activity.map((item) => (
-          <ActivityItem key={item.id} activity={item} />
+          <ActivityItem key={item.id} activity={item} onEdit={onEdit} />
         ))}
       </ul>
     </section>

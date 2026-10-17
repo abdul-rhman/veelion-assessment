@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ReduxProvider } from "@/app/ReduxProvider";
+import { AppNav } from "@/components/layout/AppNav";
 
 export const metadata: Metadata = {
-  title: "VeeLion Frontend Assessment",
-  description: "Task dashboard and activity feed modules",
+  title: "Tackboard",
+  description: "A calm board for your tasks, activity, and reports",
 };
 
 export default function RootLayout({
@@ -22,11 +23,12 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&family=Nunito:wght@300..800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Inter:wght@400..700&family=Poppins:wght@500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
       <body>
+        <AppNav />
         <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>

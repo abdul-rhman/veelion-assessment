@@ -8,6 +8,7 @@ type StickyNoteProps = {
   icon: IconType;
   bgClass?: string;
   textClass?: string;
+  iconClass?: string;
   rotation?: string;
 };
 
@@ -15,24 +16,25 @@ export function StickyNote({
   href,
   label,
   icon: Icon,
-  bgClass = "bg-rose",
-  textClass = "text-ivory",
+  bgClass = "bg-secondary",
+  textClass = "text-ink",
+  iconClass = "text-primary",
   rotation = "",
 }: StickyNoteProps) {
   return (
-    <Link
-      href={href}
-      className={`relative flex h-40 w-40 flex-col items-center justify-center gap-2 rounded-sm ${bgClass} ${textClass} shadow-[6px_10px_16px_rgba(128,0,32,0.25)] transition-transform hover:scale-105 lg:h-50 lg:w-50 ${rotation}`}
-    >
+    <div className="group relative h-40 w-40 lg:h-50 lg:w-50">
+      <Link
+        href={href}
+        className={`flex h-full w-full origin-[81%_0%] flex-col items-center justify-center gap-3 rounded-sm lg:origin-[84%_0%] ${bgClass} ${textClass} shadow-[0_18px_36px_-18px_rgba(31,46,54,0.35)] transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary group-hover:scale-105 ${rotation}`}
+      >
+        <Icon aria-hidden className={`size-7.5 lg:size-9.5 ${iconClass}`} />
+        <span className="font-heading text-2xl font-semibold">{label}</span>
+      </Link>
       <FaThumbtack
         size={30}
         aria-hidden
-        className="absolute -top-4 right-4 rotate-45 text-wine"
+        className="absolute -top-4 right-4 z-10 rotate-45 text-accent"
       />
-      <Icon aria-hidden className="size-7.5 lg:size-9.5" />
-      <span className="font-hand text-3xl leading-none lg:text-4xl">
-        {label}
-      </span>
-    </Link>
+    </div>
   );
 }
