@@ -12,8 +12,6 @@ for activity, and a quiet little page for the numbers.
   to the API through its own `/api/*` proxy routes.
 - `REVIEW.md` — the code review: everything I found in the starter and how I fixed
   it. That file is the interesting one if you want the story behind the code.
-- `LIMITATIONS.md` — the review points that are not fixed yet, each with an idea
-  for how to improve it.
 
 ## Running it
 
