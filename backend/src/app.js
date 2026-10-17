@@ -4,11 +4,13 @@ const tasksRouter = require('./modules/tasks/routes/tasks.routes');
 const activityRouter = require('./modules/activity/routes/activity.routes');
 const reportsRouter = require('./modules/reports/routes/reports.routes');
 const errorHandler = require('./middleware/errorHandler');
+const rateLimitMiddleware = require('./middleware/rateLimit');
 const HttpError = require('./utils/httpError');
 
 const app = express();
 
-app.use(express.json());
+app.use(rateLimitMiddleware);
+app.use(express.json({ limit: '10kb' }));
 
 app.use('/tasks', tasksRouter);
 app.use('/activity', activityRouter);

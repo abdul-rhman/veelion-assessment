@@ -1,6 +1,6 @@
 # Backend API Endpoints
 
-Base URL: `http://localhost:4000`
+Base URL: `http://localhost:3000`
 
 ## Shared Error Shape
 
@@ -11,6 +11,14 @@ type ErrorResponse = {
   };
 };
 ```
+
+## Request Limits
+
+- Request bodies are limited to `10kb`. Larger bodies receive `413`.
+- Each IP address is limited to `100` requests per minute. Extra requests receive
+  `429`.
+
+Both errors use the shared error shape above.
 
 ## Task Endpoints
 
@@ -64,6 +72,7 @@ Possible errors:
 - `400` when body is not an object.
 - `400` when title is missing/invalid/empty.
 - `400` when completed is not a boolean.
+- `400` when body contains unsupported fields.
 
 ### PATCH /tasks/:id
 
@@ -71,7 +80,7 @@ Update task title or status.
 
 ```ts
 type PatchTaskRequest = {
-  title?: string; // if provided, must be string and long enough after trim
+  title?: string; // if provided, must be a non-empty string after trim
   completed?: boolean;
 };
 
@@ -83,6 +92,7 @@ type PatchTaskResponse = {
 Possible errors:
 - `400` when body is invalid.
 - `400` when no supported fields are provided.
+- `400` when body contains unsupported fields.
 - `404` when task does not exist.
 
 ### DELETE /tasks/:id
